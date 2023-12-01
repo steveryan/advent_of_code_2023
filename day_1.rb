@@ -108,15 +108,15 @@ end
 
 def part1(data)
   calibration_lines = build_calibration_lines(data)
-  p "Calibration lines: #{calibration_lines}"
   calibration_lines.sum
 end
 
 def part2(data)
   calibration_lines = build_calibration_lines2(data)
-  p "Calibration lines: #{calibration_lines}"
   calibration_lines.sum
 end
 
 # p "Part 1: #{part1(data)}"
+start = Time.now
 p "Part 2: #{part2(data)}"
+p Time.now - start
