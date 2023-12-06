@@ -121,13 +121,7 @@ def part2_elegant_brute_force
   
   100000.times do |i|
     location_to_check = randomizer.rand(0..min)
-    humidity = get_humidity_rev(location_to_check)
-    temperature = get_temperature_rev(humidity)
-    light = get_light_rev(temperature)
-    water = get_water_rev(light)
-    fertilizer = get_fertilizer_rev(water)
-    soil = get_soil_rev(fertilizer)
-    seed = get_seeds_rev(soil)
+    seed = get_seed_from_location(location_to_check)
     if seed_ranges.any?{|range| range.cover?(seed)}
       min = location_to_check
     end
@@ -137,13 +131,7 @@ def part2_elegant_brute_force
   location = min
   while found_one
     location -= 1
-    humidity = get_humidity_rev(location)
-    temperature = get_temperature_rev(humidity)
-    light = get_light_rev(temperature)
-    water = get_water_rev(light)
-    fertilizer = get_fertilizer_rev(water)
-    soil = get_soil_rev(fertilizer)
-    seed = get_seeds_rev(soil)
+    seed = get_seed_from_location(location)
     if seed_ranges.any?{|range| range.cover?(seed)}
       found_one = true
     else
@@ -152,6 +140,16 @@ def part2_elegant_brute_force
     end
   end
   location
+end
+
+def get_seed_from_location(location_to_check)
+  humidity = get_humidity_rev(location_to_check)
+  temperature = get_temperature_rev(humidity)
+  light = get_light_rev(temperature)
+  water = get_water_rev(light)
+  fertilizer = get_fertilizer_rev(water)
+  soil = get_soil_rev(fertilizer)
+  seed = get_seeds_rev(soil)
 end
 
 def get_humidity_rev(location)
