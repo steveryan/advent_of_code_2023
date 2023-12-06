@@ -1,3 +1,4 @@
+require "JSON"
 @data = File.read("data/day_5.txt").lines.map(&:strip).reject(&:empty?)
 
 @data.each_with_index do |line,i|
@@ -349,29 +350,53 @@ end
 def part2
   min = 999999999999999999999999
   seed_ranges = @seeds.each_slice(2).to_a
-  p "Seed ranges: #{seed_ranges.map { |x| [x[0], x[0]+x[1]-1] } } "
+  p seed_ranges
   soil_ranges = get_soil_ranges(seed_ranges)
-  p "Soil ranges: #{soil_ranges.map { |x| [x[0], x[0]+x[1]-1] } }"
+  p soil_ranges
   fertilizer_ranges = get_fertilizer_ranges(soil_ranges)
-  p "Fertilizer ranges: #{fertilizer_ranges.map { |x| [x[0], x[0]+x[1]-1] } }"
+  p fertilizer_ranges
   water_ranges = get_water_ranges(fertilizer_ranges)
-  p "Water ranges: #{water_ranges.map { |x| [x[0], x[0]+x[1]-1] } }"
+  p water_ranges
   light_ranges = get_light_ranges(water_ranges)
-  p "Light ranges: #{light_ranges.map { |x| [x[0], x[0]+x[1]-1] } }"
+  p light_ranges
   temperature_ranges = get_temperature_ranges(light_ranges)
-  p "Temperature ranges: #{temperature_ranges.map { |x| [x[0], x[0]+x[1]-1] } }"
+  p temperature_ranges
   humidity_ranges = get_humidity_ranges(temperature_ranges)
-  p "Humidity ranges: #{humidity_ranges.map { |x| [x[0], x[0]+x[1]-1] } }"
+  p humidity_ranges
   location_ranges = get_location_ranges(humidity_ranges)
-  p "Location ranges: #{location_ranges}"
+  p location_ranges
   location_ranges = location_ranges.map do |range|
     range[0].to_i
   end
-  p location_ranges.sort.first(25)
   location_ranges.min
+end
+
+def part2_brute_force
+  min = 999999999999999999999999
+  seed_ranges = @seeds.each_slice(2).to_a
+  seed_ranges.each_with_index do |seed_range,i|
+    p "Seed Range: #{i} out of #{seed_ranges.length}"
+    start_num = seed_range[0]
+    end_num = seed_range[0] + seed_range[1] - 1
+    p "Seed Range: #{end_num - start_num} seeds"
+    for j in start_num..end_num
+      p "percent complete: #{(j-start_num).to_f/(end_num-start_num).to_f*100.0}%" if j % 10000 == 0
+      soil = get_soil(j)
+      fertilizer = get_fertilizer(soil)
+      water = get_water(fertilizer)
+      light = get_light(water)
+      temperature = get_temperature(light)
+      humidity = get_humidity(temperature)
+      location = get_location(humidity)
+      if location < min
+        min = location
+      end
+    end
+  end
+  min
 end
 
 start = Time.now
 p "Part 1: " + part1.to_s
-p "Part 2: " + part2.to_s
+p "Part 2: " + part2_brute_force.to_s
 p "Finished in #{Time.now - start} seconds."
