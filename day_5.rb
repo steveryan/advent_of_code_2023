@@ -94,33 +94,30 @@ end
 def get_soil_ranges(ranges)
   soil_ranges = []
   ranges.each do |range|
-    start_num = range[0]
-    offset = range[1]
-    end_num = start_num + offset - 1
+    start_num = range.first
+    end_num = range.last
+    offset = end_num - start_num + 1
     mappings = @data[@seed_to_soil_start+1..@soil_to_fertilizer_start-1].map{|line| line.split(" ").map(&:to_i)}
-    found_whole_range = false
-    mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && end_num <= mapping[1] + mapping[2]
-        found_whole_range = true
-        soil_ranges << [mapping[0] + start_num - mapping[1], offset]
-      end
-    end
-    next if found_whole_range
     finished = false
     mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && start_num <= mapping[1] + mapping[2] - 1
-        soil_ranges << [mapping[0] + start_num - mapping[1],[end_num-start_num+1, ((mapping[0]+mapping[2]) - (mapping[0] + (start_num - mapping[1]))).abs].min]
+      map_range = (mapping[1]..mapping[1]+mapping[2]-1)
+      if map_range.cover?(range)
+        finished = true
+        soil_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + end_num - mapping[1])
+      elsif map_range.cover?(start_num)
+        range_end = [mapping[0] + mapping[2] - 1, end_num].min
+        soil_ranges << (mapping[0] + start_num - mapping[1]..range_end)
         start_num = mapping[1] + mapping[2]
         finished = true if start_num > end_num
-      elsif end_num >= mapping[1] && end_num <= mapping[1] + mapping[2] - 1
+      elsif map_range.cover?(end_num)
         next if finished
-        soil_ranges << [[mapping[0],start_num].max, end_num - mapping[1]+1]
+        soil_ranges << (mapping[0]..mapping[0] + end_num - mapping[1])
         end_num = mapping[1] - 1
         finished = true if start_num > end_num
       end
       break if finished
     end
-    soil_ranges << [start_num, end_num-start_num+1] unless finished
+    soil_ranges << (start_num..end_num) unless finished
   end
   soil_ranges
 end
@@ -128,33 +125,29 @@ end
 def get_fertilizer_ranges(ranges)
   fertilizer_ranges = []
   ranges.each do |range|
-    start_num = range[0]
-    offset = range[1]
-    end_num = start_num + offset - 1
+    start_num = range.first
+    end_num = range.last
+    offset = end_num - start_num + 1
     mappings = @data[@soil_to_fertilizer_start+1..@fertilizer_to_water_start-1].map{|line| line.split(" ").map(&:to_i)}
-    found_whole_range = false
-    mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && end_num <= mapping[1] + mapping[2]
-        found_whole_range = true
-        fertilizer_ranges << [mapping[0] + start_num - mapping[1], offset]
-      end
-    end
-    next if found_whole_range
     finished = false
     mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && start_num <= mapping[1] + mapping[2] - 1
-        fertilizer_ranges << [mapping[0] + start_num - mapping[1],[end_num-start_num+1, ((mapping[0]+mapping[2]) - (mapping[0] + (start_num - mapping[1]))).abs].min]
+      map_range = (mapping[1]..mapping[1]+mapping[2]-1)
+      if map_range.cover?(range)
+        finished = true
+        fertilizer_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + end_num - mapping[1])
+      elsif map_range.cover?(start_num)
+        fertilizer_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + mapping[2] - 1)
         start_num = mapping[1] + mapping[2]
         finished = true if start_num > end_num
-      elsif end_num >= mapping[1] && end_num <= mapping[1] + mapping[2] - 1
+      elsif map_range.cover?(end_num)
         next if finished
-        fertilizer_ranges << [[mapping[0],start_num].max, end_num - mapping[1]+1]
+        fertilizer_ranges << (mapping[0]..mapping[0] + end_num - mapping[1])
         end_num = mapping[1] - 1
         finished = true if start_num > end_num
       end
       break if finished
     end
-    fertilizer_ranges << [start_num, end_num-start_num+1] unless finished
+    fertilizer_ranges << (start_num..end_num) unless finished
   end
   fertilizer_ranges
 end
@@ -162,33 +155,31 @@ end
 def get_water_ranges(ranges)
   water_ranges = []
   ranges.each do |range|
-    start_num = range[0]
-    offset = range[1]
-    end_num = start_num + offset - 1
+    start_num = range.first
+    end_num = range.last
+    offset = end_num - start_num + 1
     mappings = @data[@fertilizer_to_water_start+1..@water_to_light_start-1].map{|line| line.split(" ").map(&:to_i)}
-    found_whole_range = false
-    mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && end_num <= mapping[1] + mapping[2]
-        found_whole_range = true
-        water_ranges << [mapping[0] + start_num - mapping[1], offset]
-      end
-    end
-    next if found_whole_range
     finished = false
     mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && start_num <= mapping[1] + mapping[2] - 1
-        water_ranges << [mapping[0] + start_num - mapping[1],[end_num-start_num+1, ((mapping[0]+mapping[2]) - (mapping[0] + (start_num - mapping[1]))).abs].min]
+      map_range = (mapping[1]..mapping[1]+mapping[2]-1)
+      if map_range.cover?(range)
+        finished = true
+        water_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + end_num - mapping[1])
+      elsif map_range.cover?(start_num)
+        range_end = [mapping[0] + mapping[2] - 1, end_num].min
+        water_ranges << (mapping[0] + start_num - mapping[1]..range_end)
         start_num = mapping[1] + mapping[2]
         finished = true if start_num > end_num
-      elsif end_num >= mapping[1] && end_num <= mapping[1] + mapping[2] - 1
+      elsif map_range.cover?(end_num)
         next if finished
-        water_ranges << [[mapping[0],start_num].max, end_num - mapping[1]+1]
+        range_start = [mapping[0], start_num].max
+        water_ranges << (range_start..mapping[0] + end_num - mapping[1])
         end_num = mapping[1] - 1
         finished = true if start_num > end_num
       end
       break if finished
     end
-    water_ranges << [start_num, end_num-start_num+1] unless finished
+    water_ranges << (start_num..end_num) unless finished
   end
   water_ranges
 end
@@ -196,33 +187,29 @@ end
 def get_light_ranges(ranges)
   light_ranges = []
   ranges.each do |range|
-    start_num = range[0]
-    offset = range[1]
-    end_num = start_num + offset - 1
+    start_num = range.first
+    end_num = range.last
+    offset = end_num - start_num + 1
     mappings = @data[@water_to_light_start+1..@light_to_temperature_start-1].map{|line| line.split(" ").map(&:to_i)}
-    found_whole_range = false
-    mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && end_num <= mapping[1] + mapping[2]
-        found_whole_range = true
-        light_ranges << [mapping[0] + start_num - mapping[1], offset]
-      end
-    end
-    next if found_whole_range
     finished = false
     mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && start_num <= mapping[1] + mapping[2] - 1
-        light_ranges << [mapping[0] + start_num - mapping[1],[end_num-start_num+1, ((mapping[0]+mapping[2]) - (mapping[0] + (start_num - mapping[1]))).abs].min]
+      map_range = (mapping[1]..mapping[1]+mapping[2]-1)
+      if map_range.cover?(range)
+        finished = true
+        light_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + end_num - mapping[1])
+      elsif map_range.cover?(start_num)
+        light_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + mapping[2] - 1)
         start_num = mapping[1] + mapping[2]
         finished = true if start_num > end_num
-      elsif end_num >= mapping[1] && end_num <= mapping[1] + mapping[2] - 1
+      elsif map_range.cover?(end_num)
         next if finished
-        light_ranges << [[mapping[0],start_num].max, end_num - mapping[1]+1]
+        light_ranges << (mapping[0]..mapping[0] + end_num - mapping[1])
         end_num = mapping[1] - 1
         finished = true if start_num > end_num
       end
       break if finished
     end
-    light_ranges << [start_num, end_num-start_num+1] unless finished
+    light_ranges << (start_num..end_num) unless finished
   end
   light_ranges
 end
@@ -230,34 +217,29 @@ end
 def get_temperature_ranges(ranges)
   temperature_ranges = []
   ranges.each do |range|
-    start_num = range[0]
-    offset = range[1]
-    end_num = start_num + offset - 1
+    start_num = range.first
+    end_num = range.last
+    offset = end_num - start_num + 1
     mappings = @data[@light_to_temperature_start+1..@temperature_to_humidity_start-1].map{|line| line.split(" ").map(&:to_i)}
-    found_whole_range = false
-    mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && end_num <= mapping[1] + mapping[2]
-        found_whole_range = true
-        temperature_ranges << [mapping[0] + start_num - mapping[1], offset]
-      end
-    end
-    next if found_whole_range
     finished = false
     mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && start_num <= mapping[1] + mapping[2] - 1
-        next if start_num > end_num
-        temperature_ranges << [mapping[0] + start_num - mapping[1],[end_num-start_num+1, ((mapping[0]+mapping[2]) - (mapping[0] + (start_num - mapping[1]))).abs].min]
+      map_range = (mapping[1]..mapping[1]+mapping[2]-1)
+      if map_range.cover?(range)
+        finished = true
+        temperature_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + end_num - mapping[1])
+      elsif map_range.cover?(start_num)
+        temperature_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + mapping[2] - 1)
         start_num = mapping[1] + mapping[2]
         finished = true if start_num > end_num
-      elsif end_num >= mapping[1] && end_num <= mapping[1] + mapping[2] - 1
+      elsif map_range.cover?(end_num)
         next if finished
-        temperature_ranges << [[mapping[0],start_num].max, end_num - mapping[1]+1]
+        temperature_ranges << (mapping[0]..mapping[0] + end_num - mapping[1])
         end_num = mapping[1] - 1
         finished = true if start_num > end_num
       end
       break if finished
     end
-    temperature_ranges << [start_num, end_num-start_num+1] unless finished
+    temperature_ranges << (start_num..end_num) unless finished
   end
   temperature_ranges
 end
@@ -265,33 +247,29 @@ end
 def get_humidity_ranges(ranges)
   humidity_ranges = []
   ranges.each do |range|
-    start_num = range[0]
-    offset = range[1]
-    end_num = start_num + offset - 1
+    start_num = range.first
+    end_num = range.last
+    offset = end_num - start_num + 1
     mappings = @data[@temperature_to_humidity_start+1..@humidity_to_location_start-1].map{|line| line.split(" ").map(&:to_i)}
-    found_whole_range = false
-    mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && end_num <= mapping[1] + mapping[2]
-        found_whole_range = true
-        humidity_ranges << [mapping[0] + start_num - mapping[1], offset]
-      end
-    end
-    next if found_whole_range
     finished = false
     mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && start_num <= mapping[1] + mapping[2] - 1
-        humidity_ranges << [mapping[0] + start_num - mapping[1],[end_num-start_num+1, ((mapping[0]+mapping[2]) - (mapping[0] + (start_num - mapping[1]))).abs].min]
+      map_range = (mapping[1]..mapping[1]+mapping[2]-1)
+      if map_range.cover?(range)
+        finished = true
+        humidity_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + end_num - mapping[1])
+      elsif map_range.cover?(start_num)
+        humidity_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + mapping[2] - 1)
         start_num = mapping[1] + mapping[2]
         finished = true if start_num > end_num
-      elsif end_num >= mapping[1] && end_num <= mapping[1] + mapping[2] - 1
+      elsif map_range.cover?(end_num)
         next if finished
-        humidity_ranges << [[mapping[0],start_num].max, end_num - mapping[1]+1]
+        humidity_ranges << (mapping[0]..mapping[0] + end_num - mapping[1])
         end_num = mapping[1] - 1
         finished = true if start_num > end_num
       end
       break if finished
     end
-    humidity_ranges << [start_num, end_num-start_num+1] unless finished
+    humidity_ranges << (start_num..end_num) unless finished
   end
   humidity_ranges
 end
@@ -299,33 +277,29 @@ end
 def get_location_ranges(ranges)
   location_ranges = []
   ranges.each do |range|
-    start_num = range[0]
-    offset = range[1]
-    end_num = start_num + offset - 1
+    start_num = range.first
+    end_num = range.last
+    offset = end_num - start_num + 1
     mappings = @data[@humidity_to_location_start+1..-1].map{|line| line.split(" ").map(&:to_i)}
-    found_whole_range = false
-    mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && end_num <= mapping[1] + mapping[2]
-        found_whole_range = true
-        location_ranges << [mapping[0] + start_num - mapping[1], offset]
-      end
-    end
-    next if found_whole_range
     finished = false
     mappings.reverse.each do |mapping|
-      if start_num >= mapping[1] && start_num <= mapping[1] + mapping[2] - 1
-        location_ranges << [mapping[0] + start_num - mapping[1],[end_num-start_num+1, (((mapping[0]+mapping[2]) - (mapping[0] + (start_num - mapping[1]))).abs).abs].min]
+      map_range = (mapping[1]..mapping[1]+mapping[2]-1)
+      if map_range.cover?(range)
+        finished = true
+        location_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + end_num - mapping[1])
+      elsif map_range.cover?(start_num)
+        location_ranges << (mapping[0] + start_num - mapping[1]..mapping[0] + mapping[2] - 1)
         start_num = mapping[1] + mapping[2]
         finished = true if start_num > end_num
-      elsif end_num >= mapping[1] && end_num <= mapping[1] + mapping[2] - 1
+      elsif map_range.cover?(end_num)
         next if finished
-        location_ranges << [[mapping[0],start_num].max, end_num - mapping[1]+1]
+        location_ranges << (mapping[0]..mapping[0] + end_num - mapping[1])
         end_num = mapping[1] - 1
         finished = true if start_num > end_num
       end
       break if finished
     end
-    location_ranges << [start_num, end_num-start_num+1] unless finished
+    location_ranges << (start_num..end_num) unless finished
   end
   location_ranges
 end
@@ -350,6 +324,12 @@ end
 def part2
   min = 999999999999999999999999
   seed_ranges = @seeds.each_slice(2).to_a
+  seed_ranges = seed_ranges.map do |range|
+    start_num = range[0]
+    offset = range[1]
+    end_num = start_num + offset - 1
+    (start_num..end_num)
+  end
   p seed_ranges
   soil_ranges = get_soil_ranges(seed_ranges)
   p soil_ranges
@@ -366,8 +346,9 @@ def part2
   location_ranges = get_location_ranges(humidity_ranges)
   p location_ranges
   location_ranges = location_ranges.map do |range|
-    range[0].to_i
+    range.first
   end
+  p location_ranges.sort!
   location_ranges.min
 end
 
@@ -398,5 +379,5 @@ end
 
 start = Time.now
 p "Part 1: " + part1.to_s
-p "Part 2: " + part2_brute_force.to_s
+p "Part 2: " + part2.to_s
 p "Finished in #{Time.now - start} seconds."
