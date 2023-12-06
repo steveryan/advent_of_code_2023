@@ -116,10 +116,10 @@ def part2_elegant_brute_force
     (start_num..end_num)
   end
   
-  min = 9999999999999
+  min = part1
   randomizer = Random.new
   
-  100000.times do |i|
+  50000.times do |i|
     location_to_check = randomizer.rand(0..min)
     seed = get_seed_from_location(location_to_check)
     if seed_ranges.any?{|range| range.cover?(seed)}
