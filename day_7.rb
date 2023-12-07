@@ -35,8 +35,14 @@ def part1
       nothing << hand
     end
   end
-  p nothing + pair + two_pair + three_of_a_kind + full_house + four_of_a_kind + five_of_a_kind
-  p @hands.sort { |a,b| comparison(a,b) }
+  nothing = nothing.sort {|a,b| comparison(a,b)}
+  pair = pair.sort {|a,b| comparison(a,b)}
+  two_pair = two_pair.sort {|a,b| comparison(a,b)}
+  three_of_a_kind = three_of_a_kind.sort {|a,b| comparison(a,b)}
+  four_of_a_kind = four_of_a_kind.sort {|a,b| comparison(a,b)}
+  five_of_a_kind = five_of_a_kind.sort {|a,b| comparison(a,b)}
+  ordered_hands = nothing + pair + two_pair + three_of_a_kind + full_house + four_of_a_kind + five_of_a_kind
+  p ordered_hands
 end
 
 def comparison(a,b)
